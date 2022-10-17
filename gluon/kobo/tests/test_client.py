@@ -70,6 +70,21 @@ class TestKoboAuth(unittest.TestCase):
 
         assert dict(httpretty.last_request().headers)["Authorization"] == "Token what are you token about?"
 
+    @httpretty.activate
+    def test_update_url(self):
+        url = "http://my_cool_url/"
+        httpretty.register_uri(
+            httpretty.GET, "http://my_cool_url/token?format=json",
+            body=json.dumps({"token": "what are you token about?"})
+        )
+
+        kobo = KoboClient("user", "1234", url=url)
+        assert kobo.token is None
+
+        kobo._get_new_token()
+        assert kobo.token == "what are you token about?"
+        assert kobo.auth_headers == {"Authorization": "Token what are you token about?"}
+
 class TestPulls(unittest.TestCase):
     @httpretty.activate
     def test_pull_data(self):
