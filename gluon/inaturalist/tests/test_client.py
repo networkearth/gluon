@@ -11,7 +11,7 @@ from ..client import (
 def register_token_url():
     httpretty.register_uri(
         httpretty.POST, "https://www.inaturalist.org/oauth/token",
-        body=json.dumps({"auth_token": "what are you token about?"})
+        body=json.dumps({"access_token": "what are you token about?"})
     )
 
 class TestiNaturalistAuth(unittest.TestCase):
@@ -57,7 +57,7 @@ class TestiNaturalistAuth(unittest.TestCase):
         app_url = 'http://my_cool_url/'
         httpretty.register_uri(
             httpretty.POST, "http://my_cool_url/oauth/token",
-            body=json.dumps({"auth_token": "what are you token about?"})
+            body=json.dumps({"access_token": "what are you token about?"})
         )
 
         inaturalist = iNaturalistClient(

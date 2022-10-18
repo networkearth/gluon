@@ -37,7 +37,7 @@ class iNaturalistClient(object):
             f'{self.app_url}/oauth/token',
             json=payload
         )
-        self.token = response.json()['auth_token']
+        self.token = response.json()['access_token']
         self.auth_headers = {"Authorization": f"Bearer {self.token}"}
         self.token_refresh_time = time()
 
