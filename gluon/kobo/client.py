@@ -3,10 +3,9 @@ import requests
 from time import time
 from requests.auth import HTTPBasicAuth
 
-from ..client import Client
 from ..utils import clean_url
 
-class KoboClient(Client):
+class KoboClient(object):
     def __init__(self, username: str, password: str, **kwargs):
         self.username = username
         self.password = password
@@ -31,6 +30,14 @@ class KoboClient(Client):
         self.token = response.json()['token']
         self.auth_headers = {"Authorization": f"Token {self.token}"}
         self.token_refresh_time = time()
+
+    def ensure_authorized(method):
+        def check_auth_then_run_method(self, *args, **kwargs):
+            if self._need_new_token():
+                self._get_new_token()
+            return method(self, *args, **kwargs)
+
+        return check_auth_then_run_method
 
     @ensure_authorized
     def pull_data(self, uid):

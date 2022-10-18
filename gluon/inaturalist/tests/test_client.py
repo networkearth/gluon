@@ -1,9 +1,8 @@
-import os
 import unittest
 import httpretty
 import json
 
-from time import sleep, time
+from time import sleep
 
 from ..client import (
     iNaturalistClient
@@ -28,7 +27,8 @@ class TestiNaturalistAuth(unittest.TestCase):
         assert inaturalist.token == "what are you token about?"
         assert inaturalist.auth_headers == {"Authorization": "Bearer what are you token about?"}
 
-        assert dict(httpretty.last_request().body) == {
+        print(httpretty.last_request().body)
+        assert json.loads(httpretty.last_request().body) == {
             "username": "user",
             "password": "1234",
             "client_id": "a client id",
