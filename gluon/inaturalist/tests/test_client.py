@@ -1,6 +1,7 @@
 import unittest
 import httpretty
 import json
+import os
 
 from time import sleep
 
@@ -122,3 +123,38 @@ class TestiNaturalistObservation(unittest.TestCase):
                 "value": "a field value"
             }
         }
+
+    @httpretty.activate
+    def test_attach_image(self):
+        register_token_url()
+        httpretty.register_uri(
+            httpretty.POST, "https://www.inaturalist.org/v1/observation_photos",
+            body=json.dumps({})
+        )
+
+        image_path = 'test_photo.png'
+        with open(image_path, 'wb') as fh:
+            fh.write(b'a flower I guess?')
+
+        try:
+            inaturalist = iNaturalistClient(
+                "user", "1234", "a client id", "its a secret"
+            )
+            inaturalist.attach_image(
+                10, image_path
+            )
+        except Exception as e:
+            os.remove(image_path)
+            raise e
+
+        os.remove(image_path)
+        
+        assert "Authorization: Bearer what are you token about?" in str(httpretty.last_request().headers)
+        print(bytes(httpretty.last_request().body))
+        assert (
+            "\r\nContent-Disposition: form-data; name=\"observation_photo[observation_id]\"\r\n\r\n10\r\n" 
+            in bytes(httpretty.last_request().body).decode('utf-8')
+        )
+        assert (
+            "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test_photo.png\"\r\n\r\na flower I guess?\r\n"
+        )

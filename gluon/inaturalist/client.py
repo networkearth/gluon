@@ -76,7 +76,16 @@ class iNaturalistClient(object):
     def attach_image(
         self, observation_id, file_path
     ):
-        pass
+        form_data = {
+            "file": (file_path, open(file_path, 'rb')),
+            "observation_photo[observation_id]": (None, observation_id)
+        }
+        response = requests.post(
+            f'{self.api_url}/observation_photos',
+            headers=self.auth_headers,
+            files=form_data
+        )
+        print(response)
 
     @ensure_authorized
     def attach_observation_field(
@@ -94,4 +103,3 @@ class iNaturalistClient(object):
             headers=self.auth_headers,
             json=payload
         )
-
