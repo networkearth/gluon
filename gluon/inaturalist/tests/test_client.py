@@ -150,7 +150,6 @@ class TestiNaturalistObservation(unittest.TestCase):
         os.remove(image_path)
         
         assert "Authorization: Bearer what are you token about?" in str(httpretty.last_request().headers)
-        print(bytes(httpretty.last_request().body))
         assert (
             "\r\nContent-Disposition: form-data; name=\"observation_photo[observation_id]\"\r\n\r\n10\r\n" 
             in bytes(httpretty.last_request().body).decode('utf-8')

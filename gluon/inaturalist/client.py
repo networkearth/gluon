@@ -85,7 +85,6 @@ class iNaturalistClient(object):
             headers=self.auth_headers,
             files=form_data
         )
-        print(response)
 
     @ensure_authorized
     def attach_observation_field(
