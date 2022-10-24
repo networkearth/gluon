@@ -3,7 +3,7 @@ import httpretty
 import json
 import os
 
-from time import sleep
+from time import time, sleep
 
 from ..client import (
     iNaturalistClient
@@ -69,13 +69,39 @@ class TestiNaturalistAuth(unittest.TestCase):
         assert inaturalist.token == "what are you token about?"
         assert inaturalist.auth_headers == {"Authorization": "Bearer what are you token about?"}
 
+class TestRateLimit(unittest.TestCase):
+
+    @httpretty.activate
+    def test_rate_limit(self):
+        register_token_url()
+        httpretty.register_uri(
+            httpretty.POST, "https://api.inaturalist.org/v1/observations",
+            body=json.dumps({"id": 11})
+        )
+        inaturalist = iNaturalistClient(
+            "user", "1234", "a client id", "its a secret", rate=1
+        )
+        start = time()
+        inaturalist.upload_base_observation(
+            2, -71.157109, 42.462211, 
+            "2022-08-17T10:04:00-04:00", 
+            5, "Hello World!"
+        )
+        inaturalist.upload_base_observation(
+            2, -71.157109, 42.462211, 
+            "2022-08-17T10:04:00-04:00", 
+            5, "Hello World!"
+        )
+        end = time()
+        assert end - start > 1
+
 class TestiNaturalistObservation(unittest.TestCase):
 
     @httpretty.activate
     def test_upload_base_observation(self):
         register_token_url()
         httpretty.register_uri(
-            httpretty.POST, "https://www.inaturalist.org/v1/observations",
+            httpretty.POST, "https://api.inaturalist.org/v1/observations",
             body=json.dumps({"id": 11})
         )
 
@@ -104,7 +130,7 @@ class TestiNaturalistObservation(unittest.TestCase):
     def test_attach_observation_field_value(self):
         register_token_url()
         httpretty.register_uri(
-            httpretty.POST, "https://www.inaturalist.org/v1/observation_field_values",
+            httpretty.POST, "https://api.inaturalist.org/v1/observation_field_values",
             body=json.dumps({})
         )
 
@@ -128,7 +154,7 @@ class TestiNaturalistObservation(unittest.TestCase):
     def test_attach_image(self):
         register_token_url()
         httpretty.register_uri(
-            httpretty.POST, "https://www.inaturalist.org/v1/observation_photos",
+            httpretty.POST, "https://api.inaturalist.org/v1/observation_photos",
             body=json.dumps({})
         )
 

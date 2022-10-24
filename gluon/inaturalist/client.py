@@ -1,5 +1,5 @@
 import requests
-from time import time
+from time import time, sleep
 
 from ..utils import clean_url
 
@@ -14,13 +14,15 @@ class iNaturalistClient(object):
             kwargs.get('app_url', 'https://www.inaturalist.org')
         )
         self.api_url = clean_url(
-            kwargs.get('api_url', 'https://www.inaturalist.org/v1')
+            kwargs.get('api_url', 'https://api.inaturalist.org/v1')
         )
         self.time_to_stale = kwargs.get("time_to_stale", 300)
+        self.time_between_requests = 1./kwargs.get('rate', float('inf'))
 
         self.token = None
         self.auth_headers = {}
         self.token_refresh_time = -float('inf')
+        self.last_request_time = -float('inf')
 
     def _need_new_token(self) -> None:
         return time() - self.token_refresh_time >= self.time_to_stale
@@ -49,12 +51,22 @@ class iNaturalistClient(object):
 
         return check_auth_then_run_method
 
+    def rate_limit(method):
+        def limit(self, *args, **kwargs):
+            time_left = self.time_between_requests - (time() - self.last_request_time)
+            sleep(max(time_left, 0))
+            self.last_request_time = time()
+            return method(self, *args, **kwargs)
+
+        return limit
+
+    @rate_limit
     @ensure_authorized
     def upload_base_observation(
-        self, taxon_id, longitude, latitude, 
-        observed_on_string, positional_accuracy, 
-        description
-    ):
+        self, taxon_id: int, longitude: float, latitude: float, 
+        observed_on_string: str, positional_accuracy: float, 
+        description: str
+    ) -> int:
         payload = {
             "observation": {
                 "taxon_id": taxon_id,
@@ -72,10 +84,11 @@ class iNaturalistClient(object):
         )
         return response.json()['id']
 
+    @rate_limit
     @ensure_authorized
     def attach_image(
-        self, observation_id, file_path
-    ):
+        self, observation_id: int, file_path: str
+    ) -> None:
         form_data = {
             "file": (file_path, open(file_path, 'rb')),
             "observation_photo[observation_id]": (None, observation_id)
@@ -86,10 +99,11 @@ class iNaturalistClient(object):
             files=form_data
         )
 
+    @rate_limit
     @ensure_authorized
     def attach_observation_field(
-        self, observation_id, observation_field_id, value
-    ):
+        self, observation_id: int, observation_field_id: int, value
+    ) -> None:
         payload = {
             "observation_field_value": {
                 "observation_id": observation_id,
