@@ -48,3 +48,57 @@ class iNaturalistClient(object):
             return method(self, *args, **kwargs)
 
         return check_auth_then_run_method
+
+    @ensure_authorized
+    def upload_base_observation(
+        self, taxon_id, longitude, latitude, 
+        observed_on_string, positional_accuracy, 
+        description
+    ):
+        payload = {
+            "observation": {
+                "taxon_id": taxon_id,
+                "longitude": longitude,
+                "latitude": latitude,
+                "observed_on_string": observed_on_string,
+                "positional_accuracy": positional_accuracy,
+                "description": description
+            }   
+        }
+        response = requests.post(
+            f'{self.api_url}/observations',
+            headers=self.auth_headers,
+            json=payload
+        )
+        return response.json()['id']
+
+    @ensure_authorized
+    def attach_image(
+        self, observation_id, file_path
+    ):
+        form_data = {
+            "file": (file_path, open(file_path, 'rb')),
+            "observation_photo[observation_id]": (None, observation_id)
+        }
+        response = requests.post(
+            f'{self.api_url}/observation_photos',
+            headers=self.auth_headers,
+            files=form_data
+        )
+
+    @ensure_authorized
+    def attach_observation_field(
+        self, observation_id, observation_field_id, value
+    ):
+        payload = {
+            "observation_field_value": {
+                "observation_id": observation_id,
+                "observation_field_id": observation_field_id,
+                "value": value
+            }
+        }
+        response = requests.post(
+            f'{self.api_url}/observation_field_values',
+            headers=self.auth_headers,
+            json=payload
+        )
