@@ -63,10 +63,10 @@ class iNaturalistClient(object):
     @rate_limit
     @ensure_authorized
     def upload_base_observation(
-        self, taxon_id, longitude, latitude, 
-        observed_on_string, positional_accuracy, 
-        description
-    ):
+        self, taxon_id: int, longitude: float, latitude: float, 
+        observed_on_string: str, positional_accuracy: float, 
+        description: str
+    ) -> int:
         payload = {
             "observation": {
                 "taxon_id": taxon_id,
@@ -87,8 +87,8 @@ class iNaturalistClient(object):
     @rate_limit
     @ensure_authorized
     def attach_image(
-        self, observation_id, file_path
-    ):
+        self, observation_id: int, file_path: str
+    ) -> None:
         form_data = {
             "file": (file_path, open(file_path, 'rb')),
             "observation_photo[observation_id]": (None, observation_id)
@@ -102,8 +102,8 @@ class iNaturalistClient(object):
     @rate_limit
     @ensure_authorized
     def attach_observation_field(
-        self, observation_id, observation_field_id, value
-    ):
+        self, observation_id: int, observation_field_id: int, value
+    ) -> None:
         payload = {
             "observation_field_value": {
                 "observation_id": observation_id,
