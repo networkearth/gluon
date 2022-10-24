@@ -14,7 +14,7 @@ class iNaturalistClient(object):
             kwargs.get('app_url', 'https://www.inaturalist.org')
         )
         self.api_url = clean_url(
-            kwargs.get('api_url', 'https://www.inaturalist.org/v1')
+            kwargs.get('api_url', 'https://api.inaturalist.org/v1')
         )
         self.time_to_stale = kwargs.get("time_to_stale", 300)
 

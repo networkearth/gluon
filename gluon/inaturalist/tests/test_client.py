@@ -75,7 +75,7 @@ class TestiNaturalistObservation(unittest.TestCase):
     def test_upload_base_observation(self):
         register_token_url()
         httpretty.register_uri(
-            httpretty.POST, "https://www.inaturalist.org/v1/observations",
+            httpretty.POST, "https://api.inaturalist.org/v1/observations",
             body=json.dumps({"id": 11})
         )
 
@@ -104,7 +104,7 @@ class TestiNaturalistObservation(unittest.TestCase):
     def test_attach_observation_field_value(self):
         register_token_url()
         httpretty.register_uri(
-            httpretty.POST, "https://www.inaturalist.org/v1/observation_field_values",
+            httpretty.POST, "https://api.inaturalist.org/v1/observation_field_values",
             body=json.dumps({})
         )
 
@@ -128,7 +128,7 @@ class TestiNaturalistObservation(unittest.TestCase):
     def test_attach_image(self):
         register_token_url()
         httpretty.register_uri(
-            httpretty.POST, "https://www.inaturalist.org/v1/observation_photos",
+            httpretty.POST, "https://api.inaturalist.org/v1/observation_photos",
             body=json.dumps({})
         )
 
