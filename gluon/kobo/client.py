@@ -46,12 +46,17 @@ class KoboClient(object):
             headers=self.auth_headers
         )
         return response.json()["results"]
-
+            
     @ensure_authorized
-    def pull_image(self, file_path, uid, instance, id):
+    def pull_image_bytes(self, uid, instance, id):
         response = requests.get(
             f'{self.url}/{self.api}/assets/{uid}/data/{instance}/attachments/{id}/',
             headers=self.auth_headers
         )
+        return response.content
+
+    @ensure_authorized
+    def pull_image(self, file_path, uid, instance, id):
+        content = self.pull_image_bytes(uid, instance, id)
         with open(file_path, 'wb') as fh:
-            fh.write(response.content)
+            fh.write(content)
