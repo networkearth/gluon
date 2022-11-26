@@ -103,6 +103,22 @@ class TestPulls(unittest.TestCase):
         assert dict(httpretty.last_request().headers)["Authorization"] == "Token what are you token about?"
 
     @httpretty.activate
+    def test_pull_instance(self):
+        register_token_url()
+        
+        httpretty.register_uri(
+            httpretty.GET, "https://kf.kobotoolbox.org/api/v2/assets/5678/data/910.json",
+            body=json.dumps({"some": "data"})
+        )
+
+        kobo = KoboClient("user", "1234")
+
+        data = kobo.pull_instance("5678", "910")
+        assert data == {"some": "data"}
+
+        assert dict(httpretty.last_request().headers)["Authorization"] == "Token what are you token about?"
+
+    @httpretty.activate
     def test_pull_image(self):
         register_token_url()
 
