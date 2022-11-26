@@ -127,3 +127,18 @@ class TestPulls(unittest.TestCase):
         assert content == "a pretty picture"
 
         assert dict(httpretty.last_request().headers)["Authorization"] == "Token what are you token about?"
+
+class TestDelete(unittest.TestCase):
+    @httpretty.activate
+    def test_delete_instance(self):
+        register_token_url()
+        
+        httpretty.register_uri(
+            httpretty.DELETE, "https://kf.kobotoolbox.org/api/v2/assets/5678/data/910"
+        )
+
+        kobo = KoboClient("user", "1234")
+
+        data = kobo.delete_instance("5678", "910")
+
+        assert dict(httpretty.last_request().headers)["Authorization"] == "Token what are you token about?"

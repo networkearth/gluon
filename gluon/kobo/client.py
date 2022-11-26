@@ -46,6 +46,14 @@ class KoboClient(object):
             headers=self.auth_headers
         )
         return response.json()["results"]
+
+    @ensure_authorized
+    def delete_instance(self, uid, instance):
+        response = requests.delete(
+            f'{self.url}/{self.api}/assets/{uid}/data/{instance}',
+            headers=self.auth_headers
+        )
+        return {}
             
     @ensure_authorized
     def pull_image_bytes(self, uid, instance, id):
